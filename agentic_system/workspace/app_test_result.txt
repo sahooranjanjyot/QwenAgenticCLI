@@ -1,0 +1,5 @@
+PASS
+/health response: {"status":"ok"}
+POST /users (Alice) response: {"id":9,"name":"Alice"}
+POST /users (Bob) response: {"id":10,"name":"Bob"}
+GET /users response: [{"id":7,"name":"Alice"},{"id":8,"name":"Bob"},{"id":9,"name":"Alice"},{"id":10,"name":"Bob"}]

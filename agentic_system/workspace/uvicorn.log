@@ -1,0 +1,33 @@
+INFO:     Started server process [67217]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+INFO:     127.0.0.1:52293 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52506 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52508 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52510 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52512 - "GET /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52856 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52858 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52860 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52862 - "GET /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52899 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52901 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52903 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52905 - "GET /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52919 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52921 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52923 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52925 - "GET /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53138 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53428 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53435 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53436 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54058 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54060 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54062 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54064 - "GET /users HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [67217]

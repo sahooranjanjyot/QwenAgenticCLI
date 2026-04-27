@@ -1,0 +1,61 @@
+Build a full mini web application with backend + persistence + validation.
+
+REQUIREMENTS:
+
+1. Backend:
+- Use Python FastAPI
+- Create endpoints:
+  - GET /health → {"status": "ok"}
+  - POST /users → accepts {"name": "..."} and stores user
+  - GET /users → returns all users
+
+2. Persistence:
+- Use SQLite (file-based, no external DB)
+- Create users table automatically if not exists
+- Store users persistently
+
+3. Validation:
+- Reject empty name
+- Return proper error message
+
+4. App behavior:
+- Ensure duplicate users are allowed (no uniqueness constraint)
+- Handle DB connection errors
+
+5. Dependencies:
+- Create requirements.txt (fastapi, uvicorn, sqlite3 if needed)
+
+6. Execution:
+- Install dependencies
+- Run server on port 8002 (background)
+
+7. Testing:
+- Use curl to:
+  - Check /health
+  - Add at least 2 users
+  - Fetch users list
+- Validate response correctness
+
+8. Retry logic:
+- If server not reachable → retry (max 5)
+- If DB error → FIX and retry
+- If API fails → FIX and retry
+
+9. Output:
+- Write results to app_test_result.txt:
+  - PASS if all endpoints work correctly
+  - FAIL otherwise
+  - Include API responses as evidence
+
+RULES:
+- Choose correct architecture (FastAPI + SQLite)
+- Stay consistent
+- Do NOT COMPLETE unless:
+  - APIs are working
+  - Data is stored and retrieved correctly
+  - Output file exists with PASS
+
+- If any failure → FIX (do not skip)
+
+FINAL CONDITION:
+Only output COMPLETE when everything is validated and working end-to-end.
