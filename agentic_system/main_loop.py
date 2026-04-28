@@ -24,8 +24,11 @@ while True:
     # STEP 1 — QWEN DECISION
     # =========================
     agent_goal = goal
+    import os
+    workspace_files = [f for f in os.listdir('.') if os.path.isfile(f) and not f.endswith('.log') and f not in ["goal.txt", "users.db"]]
+    agent_goal += f"\n\nCURRENT FILES IN WORKSPACE: {workspace_files}\nCheck if you need to run any commands (e.g., uvicorn) to start the server."
     if memory.get_all():
-        agent_goal = goal + "\n\nMEMORY/FEEDBACK:\n" + str(memory.get_all()[-5:])
+        agent_goal += "\n\nMEMORY/FEEDBACK:\n" + str(memory.get_all()[-5:])
     agent_goal = agent_goal + "\nRULE: Always READ_FILE before WRITE_FILE. Do not rewrite same file repeatedly."
     try:
         action = QwenAgent().next_action(agent_goal, memory.get_all(), last_observation)
@@ -71,23 +74,25 @@ while True:
     test_result = run_tests()
     print(f"🧪 TEST RESULT:\n{test_result}")
 
-    if False:
+    if not test_result.get("all_pass"):
         print("❌ TEST FAILED → FEEDBACK TO QWEN")
+
+        if result == "COMPLETE":
+            last_observation = {"error": "You returned COMPLETE, but tests failed. Do NOT return COMPLETE until tests pass. Check if you need to start the server."}
+            print("🚫 REJECTED COMPLETE: Tests are failing.")
 
         memory.add("system", {
             "type": "test_failure",
             "data": test_result
         })
 
-        retries += 1
-        # REMOVED: continue
-
-    print("✅ ALL TESTS PASSED")
+    else:
+        print("✅ ALL TESTS PASSED")
 
     # =========================
     # STEP 5 — SUCCESS CHECK
     # =========================
-    if result == "COMPLETE" or test_result["all_pass"]:
+    if result == "COMPLETE" and test_result.get("all_pass"):
         print("🎉 GOAL ACHIEVED")
         break
 
