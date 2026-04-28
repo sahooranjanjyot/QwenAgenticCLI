@@ -66,9 +66,15 @@ def execute_action(action, caller=None):
     # ===============================
     if action_type == "RUN_COMMAND":
         cmd = action.get("command")
-
         if not cmd:
             return "EMPTY COMMAND"
+
+        if cmd.strip().endswith("&"):
+            print(f"🔄 LAUNCHING BACKGROUND PROCESS: {cmd}")
+            subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            import time
+            time.sleep(2) # Give the server a moment to start
+            return f"STARTED BACKGROUND COMMAND: {cmd}"
 
         return subprocess.getoutput(cmd)
 

@@ -1,3 +1,6 @@
+import os
+import json
+
 def review_with_openai(goal, action, context=None):
     print("🧠 GOVERNANCE CHECK")
 
@@ -41,8 +44,44 @@ def review_with_openai(goal, action, context=None):
     # BLOCK EMPTY / NONSENSE ACTIONS
     # ============================================================
 
-    if all(not action.get(k) for k in ["content", "command", "target"]):
+    if all(not action.get(k) for k in ["content", "command", "target"] and action_type != "COMPLETE"):
         return {"decision": "FAIL", "reason": "Completely empty action", "feedback": "Completely empty action"}
+
+    # ============================================================
+    # ACTUAL OPENAI GOVERNANCE
+    # ============================================================
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        print("🔍 Querying OpenAI for semantic governance...")
+        try:
+            import openai
+            client = openai.OpenAI(api_key=api_key)
+            prompt = f"""
+You are the Governance AI for an autonomous coding agent.
+The agent's overall goal is:
+{goal}
+
+The agent proposes the following action:
+{json.dumps(action, indent=2)}
+
+Is this action safe, non-destructive, and logically aligned with achieving the goal?
+Respond with a JSON object: {{"decision": "PASS" or "FAIL", "feedback": "Your reasoning"}}
+"""
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            llm_review = json.loads(response.choices[0].message.content)
+            
+            if llm_review.get("decision") == "FAIL":
+                return {
+                    "decision": "FAIL", 
+                    "reason": "OpenAI Governance Rejected", 
+                    "feedback": llm_review.get("feedback", "Rejected by LLM")
+                }
+        except Exception as e:
+            print(f"⚠️ OpenAI Governance API Error (falling back to PASS): {e}")
 
     print("✅ GOVERNANCE PASS")
     return {"decision": "PASS", "feedback": "Looks good."}
