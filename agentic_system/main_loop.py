@@ -88,6 +88,7 @@ while True:
 
     else:
         print("✅ ALL TESTS PASSED")
+        last_observation = {"success": "All tests passed perfectly! The goal is achieved. You MUST now output action_type: 'COMPLETE' to finish."}
 
     # =========================
     # STEP 5 — SUCCESS CHECK

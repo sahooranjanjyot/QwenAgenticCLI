@@ -44,7 +44,7 @@ def review_with_openai(goal, action, context=None):
     # BLOCK EMPTY / NONSENSE ACTIONS
     # ============================================================
 
-    if all(not action.get(k) for k in ["content", "command", "target"] and action_type != "COMPLETE"):
+    if action_type != "COMPLETE" and all(not action.get(k) for k in ["content", "command", "target"]):
         return {"decision": "FAIL", "reason": "Completely empty action", "feedback": "Completely empty action"}
 
     # ============================================================
