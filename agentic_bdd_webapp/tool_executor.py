@@ -1,0 +1,88 @@
+import os
+import subprocess
+
+def extract_content(content):
+    # 🔥 HANDLE BOTH STRING + DICT
+    if isinstance(content, dict):
+        return content.get("payload", "")
+    return content or ""
+
+def execute_action(action, caller=None):
+    print(f"⚙️ EXECUTOR CALLED BY: {caller}")
+    print(f"📦 ACTION: {action}")
+
+    if not isinstance(action, dict):
+        return "❌ Invalid action format"
+
+    action_type = action.get("action_type") or action.get("action")
+
+    if action_type == "COMPLETE":
+        return "COMPLETE"
+
+    # ===============================
+    # READ FILE
+    # ===============================
+    if action_type == "READ_FILE":
+        target = action.get("target")
+
+        if not target or not os.path.exists(target):
+            return "FILE NOT FOUND"
+
+        with open(target, "r") as f:
+            content = f.read()
+            
+        return content
+
+    # ===============================
+    # WRITE / FIX FILE
+    # ===============================
+    if action_type in ["WRITE_FILE", "FIX"]:
+        target = action.get("target")
+        raw_content = action.get("content")
+
+        content = extract_content(raw_content)
+
+        if not target or not content:
+            return "INVALID WRITE"
+
+        # 🔥 SAFE STRING CHECK
+        if os.path.exists(target):
+            with open(target, "r") as f:
+                existing = f.read()
+
+            if existing.strip() == content.strip():
+                print("🚫 BLOCKED: SAME CONTENT")
+                return "NO_CHANGE"
+
+            print("⚠️ OVERWRITING EXISTING FILE")
+
+        with open(target, "w") as f:
+            f.write(content)
+
+        return f"WROTE {target}"
+
+    # ===============================
+    # RUN COMMAND
+    # ===============================
+    if action_type == "RUN_COMMAND":
+        cmd = action.get("command")
+        if not cmd:
+            return "EMPTY COMMAND"
+
+        if cmd.strip().endswith("&"):
+            print(f"🔄 LAUNCHING BACKGROUND PROCESS: {cmd}")
+            subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            import time
+            time.sleep(2) # Give the server a moment to start
+            return f"STARTED BACKGROUND COMMAND: {cmd}"
+
+        return subprocess.getoutput(cmd)
+
+    return "UNKNOWN ACTION"
+
+# ============================================================
+# CLASS-BASED EXECUTOR (BACKWARD COMPATIBILITY)
+# ============================================================
+class ToolExecutor:
+    def execute(self, action, caller="ToolExecutor"):
+        return execute_action(action, caller=caller)

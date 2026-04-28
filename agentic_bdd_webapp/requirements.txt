@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+behave
+requests
+python-multipart

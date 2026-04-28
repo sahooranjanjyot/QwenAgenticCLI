@@ -1,0 +1,39 @@
+Build a mini Task Manager web application with a UI, backend, persistence, and BDD (Behavior-Driven Development) tests using `behave`.
+
+REQUIREMENTS:
+
+1. Backend & UI:
+- Use Python FastAPI.
+- Return a simple HTML UI on `GET /` using `HTMLResponse`.
+- The UI should have a form to submit a task (HTML input and button).
+- `POST /tasks` → accepts a form submission with `task_name` and saves it.
+- `GET /tasks` → returns a JSON list of tasks.
+
+2. Persistence:
+- Use SQLite (`tasks.db`).
+- Create `tasks` table automatically on startup (id, task_name).
+- Store tasks persistently.
+
+3. Dependencies:
+- Create `requirements.txt` (fastapi, uvicorn, behave, requests, python-multipart).
+
+4. BDD Testing Framework (behave):
+- Write `features/tasks.feature` describing two scenarios:
+  1) Fetching empty tasks list initially.
+  2) Adding a task via POST and seeing it in the GET /tasks list.
+- Write `features/steps/task_steps.py` to implement the BDD steps using the `requests` library to test the live server.
+
+5. Execution:
+- Install dependencies via pip.
+- Run server on port 8003 in the background (uvicorn main:app --port 8003 &).
+
+6. Output:
+- Once tests pass, write the `behave` test results to `app_test_result.txt` with PASS.
+
+RULES:
+- Choose correct architecture (FastAPI + SQLite).
+- Do NOT COMPLETE unless the server is running, the BDD tests exist, and `behave` runs successfully.
+- If `behave` fails -> READ the error and FIX the code or the tests, then retry.
+
+FINAL CONDITION:
+Only output COMPLETE when everything is validated, tests pass, and app_test_result.txt is written.
