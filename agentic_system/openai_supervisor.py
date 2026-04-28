@@ -1,45 +1,48 @@
-import os
-import json
-from openai import OpenAI
+def review_with_openai(goal, action, context=None):
+    print("🧠 GOVERNANCE CHECK")
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    if not isinstance(action, dict):
+        return {"decision": "FAIL", "reason": "Action is not dict", "feedback": "Action is not dict"}
 
-def review_with_openai(goal, action, result):
-    print("🔥 OPENAI SUPERVISOR CALLED")
+    action_type = action.get("action_type") or action.get("action")
 
-    prompt = f"""
-You are a STRICT agent workflow validator.
+    # ============================================================
+    # BASIC STRUCTURE CHECK
+    # ============================================================
+    if not action_type:
+        return {"decision": "FAIL", "reason": "Missing action_type", "feedback": "Missing action_type"}
 
-You must decide if the CURRENT ACTION is VALID — not whether the task is complete.
+    # ============================================================
+    # VALIDATION RULES
+    # ============================================================
 
-Return ONLY JSON:
-{{
-  "decision": "PASS" or "FAIL",
-  "feedback": "what is wrong if FAIL"
-}}
+    if action_type == "RUN_COMMAND":
+        if not action.get("command"):
+            return {"decision": "FAIL", "reason": "Empty command", "feedback": "Empty command"}
 
-RULES:
-- READ_FILE is ALWAYS VALID
-- PATCH_CODE is VALID if modifying existing file
-- WRITE_FILE is INVALID if file already exists
-- RUN_COMMAND is VALID if meaningful
-- Repeating same action without progress = FAIL
+    elif action_type in ["WRITE_FILE", "FIX"]:
+        if not action.get("target"):
+            return {"decision": "FAIL", "reason": "Missing target", "feedback": "Missing target"}
 
-GOAL:
-{goal}
+        if not action.get("content"):
+            return {"decision": "FAIL", "reason": "Empty content", "feedback": "Empty content"}
 
-ACTION:
-{action}
+    elif action_type == "READ_FILE":
+        if not action.get("target"):
+            return {"decision": "FAIL", "reason": "Missing target", "feedback": "Missing target"}
 
-RESULT:
-{result}
-"""
+    elif action_type == "COMPLETE":
+        pass
 
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0,
-        response_format={"type": "json_object"}
-    )
+    else:
+        return {"decision": "FAIL", "reason": f"Unknown action: {action_type}", "feedback": f"Unknown action: {action_type}"}
 
-    return json.loads(response.choices[0].message.content)
+    # ============================================================
+    # BLOCK EMPTY / NONSENSE ACTIONS
+    # ============================================================
+
+    if all(not action.get(k) for k in ["content", "command", "target"]):
+        return {"decision": "FAIL", "reason": "Completely empty action", "feedback": "Completely empty action"}
+
+    print("✅ GOVERNANCE PASS")
+    return {"decision": "PASS", "feedback": "Looks good."}

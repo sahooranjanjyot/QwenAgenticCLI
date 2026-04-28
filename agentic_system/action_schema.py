@@ -7,8 +7,19 @@ def extract_action(raw_text):
     if raw_text.startswith("```"):
         raw_text = raw_text.replace("```json", "").replace("```", "").strip()
 
-    decoder = json.JSONDecoder()
+    # Try parsing the whole string first
+    try:
+        parsed = json.loads(raw_text)
+        if isinstance(parsed, list) and len(parsed) > 0:
+            for item in parsed:
+                if isinstance(item, dict) and ("action_type" in item or "action" in item):
+                    return item
+        elif isinstance(parsed, dict) and ("action_type" in parsed or "action" in parsed):
+            return parsed
+    except Exception:
+        pass
 
+    decoder = json.JSONDecoder()
     best_obj = None
 
     for i, ch in enumerate(raw_text):
@@ -17,12 +28,9 @@ def extract_action(raw_text):
 
         try:
             obj, end = decoder.raw_decode(raw_text[i:])
-
-            # Only accept real Qwen action objects
-            if isinstance(obj, dict) and "action_type" in obj:
+            if isinstance(obj, dict) and ("action_type" in obj or "action" in obj):
                 best_obj = obj
                 break
-
         except Exception:
             continue
 

@@ -18,3 +18,15 @@ class AgentMemory:
                 continue # System is sent separately
             ctx += f"[{item['role'].upper()}]: {item['content']}\n"
         return ctx
+
+    def get_last(self):
+        return self.history[-1] if self.history else None
+
+    def get_last_n(self, n):
+        return self.history[-n:] if self.history else []
+
+    def add_message(self, role, content):
+        self.history.append({"role": role, "content": content})
+
+    def get_all(self):
+        return self.history

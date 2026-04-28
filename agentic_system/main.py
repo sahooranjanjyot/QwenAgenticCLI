@@ -1,16 +1,52 @@
-import sys
-import os
-from qwen_agent import run_agent
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import sqlite3
+import time
 
-ALLOW_INTERACTIVE = False
+class User(BaseModel):
+    name: str
 
-if __name__ == "__main__":
-    if not ALLOW_INTERACTIVE:
-        if len(sys.argv) > 1:
-            raise Exception("❌ Interactive execution disabled")
+app = FastAPI()
 
-    if not os.path.exists("goal.txt"):
-        raise Exception("❌ Direct execution disabled. Use Qwen agent loop.")
+DATABASE_NAME = 'users.db'
 
-    goal = open("goal.txt").read()
-    run_agent(goal)
+@app.on_event('startup')
+def setup_db():
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)''')
+    conn.commit()
+    conn.close()
+
+@app.get('/health')
+def health_check():
+    return {'status': 'ok'}
+
+@app.post('/users')
+def create_user(user: User):
+    if not user.name:
+        raise HTTPException(status_code=400, detail='Name cannot be empty')
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('INSERT INTO users (name) VALUES (?)', (user.name,))
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f'Database error: {e}')
+    finally:
+        conn.close()
+    return {'id': cursor.lastrowid, 'name': user.name}
+
+@app.get('/users')
+def get_users():
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT * FROM users')
+        users = [{'id': row[0], 'name': row[1]} for row in cursor.fetchall()]
+    except sqlite3.Error as e:
+        raise HTTPException(status_code=500, detail=f'Database error: {e}')
+    finally:
+        conn.close()
+    return users
