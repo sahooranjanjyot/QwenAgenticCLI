@@ -1,5 +1,18 @@
 import os
 import subprocess
+import time
+
+running_processes = {}
+
+def get_active_pids():
+    global running_processes
+    active = []
+    for pid, proc in list(running_processes.items()):
+        if proc.poll() is None:
+            active.append(pid)
+        else:
+            del running_processes[pid]
+    return active
 
 def extract_content(content):
     # 🔥 HANDLE BOTH STRING + DICT
@@ -71,10 +84,10 @@ def execute_action(action, caller=None):
 
         if cmd.strip().endswith("&"):
             print(f"🔄 LAUNCHING BACKGROUND PROCESS: {cmd}")
-            subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            import time
+            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            running_processes[proc.pid] = proc
             time.sleep(2) # Give the server a moment to start
-            return f"STARTED BACKGROUND COMMAND: {cmd}"
+            return f"STARTED BACKGROUND COMMAND: {cmd} with PID {proc.pid}"
 
         return subprocess.getoutput(cmd)
 

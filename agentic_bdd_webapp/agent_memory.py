@@ -1,11 +1,28 @@
 import json
+import os
 
 class AgentMemory:
     def __init__(self):
         self.history = []
+        self.learnings = []
+        if os.path.exists("learnings.json"):
+            try:
+                with open("learnings.json", "r") as f:
+                    self.learnings = json.load(f)
+            except:
+                pass
         
     def add(self, role, content):
         self.history.append({"role": role, "content": content})
+        
+    def add_learning(self, learning_text):
+        if learning_text and learning_text not in self.learnings:
+            self.learnings.append(learning_text)
+            with open("learnings.json", "w") as f:
+                json.dump(self.learnings, f, indent=2)
+
+    def get_learnings(self):
+        return self.learnings
         
     def get_messages(self, limit=20):
         # We can structure the context block for Qwen

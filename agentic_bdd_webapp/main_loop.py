@@ -25,8 +25,17 @@ while True:
     # =========================
     agent_goal = goal
     import os
+    import tool_executor
     workspace_files = [f for f in os.listdir('.') if os.path.isfile(f) and not f.endswith('.log') and f not in ["goal.txt", "users.db"]]
-    agent_goal += f"\n\nCURRENT FILES IN WORKSPACE: {workspace_files}\nCheck if you need to run any commands (e.g., uvicorn) to start the server."
+    
+    active_pids = tool_executor.get_active_pids()
+    pid_status = f"\nACTIVE BACKGROUND PROCESS PIDs: {active_pids}. The server is RUNNING." if active_pids else "\nNO BACKGROUND PROCESSES RUNNING. If you wrote the code, you MUST run uvicorn before testing."
+    
+    learnings_block = ""
+    if memory.get_learnings():
+        learnings_block = "\n\nPAST LEARNINGS (AVOID THESE MISTAKES):\n" + "\n".join([f"- {l}" for l in memory.get_learnings()[-5:]])
+
+    agent_goal += f"\n\nCURRENT FILES IN WORKSPACE: {workspace_files}{pid_status}{learnings_block}"
     if memory.get_all():
         agent_goal += "\n\nMEMORY/FEEDBACK:\n" + str(memory.get_all()[-5:])
     agent_goal = agent_goal + "\nRULE: Always READ_FILE before WRITE_FILE. Do not rewrite same file repeatedly."
@@ -83,6 +92,10 @@ while True:
 
         openai_suggestion = analyze_test_failure(goal, test_result)
         print(f"💡 OPENAI SUGGESTION:\n{openai_suggestion}")
+        
+        # Save the suggestion to persistent memory so the agent doesn't repeat it next time
+        if openai_suggestion:
+            memory.add_learning(openai_suggestion)
 
         memory.add("system", {
             "type": "test_failure_with_guidance",
