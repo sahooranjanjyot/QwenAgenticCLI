@@ -57,15 +57,20 @@ def review_with_openai(goal, action, context=None):
             import openai
             client = openai.OpenAI(api_key=api_key)
             prompt = f"""
-You are the Governance AI for an autonomous coding agent.
+You are the Senior Governance AI for an autonomous coding agent.
 The agent's overall goal is:
 {goal}
 
 The agent proposes the following action:
 {json.dumps(action, indent=2)}
 
-Is this action safe, non-destructive, and logically aligned with achieving the goal?
-Respond with a JSON object: {{"decision": "PASS" or "FAIL", "feedback": "Your reasoning"}}
+YOUR JOB:
+1. Enforce Safety: Is it safe and non-destructive?
+2. Enforce Quality: If the action is WRITE_FILE, review the code. Is it robust, clean, and bug-free?
+3. Enforce Logic: Does this step make sense to achieve the goal?
+
+If anything is wrong or subpar, reject it.
+Respond with a JSON object: {{"decision": "PASS" or "FAIL", "feedback": "Detailed reasoning and concrete suggestions for the agent if it failed"}}
 """
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -85,3 +90,32 @@ Respond with a JSON object: {{"decision": "PASS" or "FAIL", "feedback": "Your re
 
     print("✅ GOVERNANCE PASS")
     return {"decision": "PASS", "feedback": "Looks good."}
+
+def analyze_test_failure(goal, test_result):
+    print("🧠 OPENAI ANALYZING TEST FAILURE...")
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return "Tests failed. Check the error logs and try again."
+        
+    try:
+        import openai
+        client = openai.OpenAI(api_key=api_key)
+        prompt = f"""
+You are the Senior Governance AI. The junior agent (Qwen) just ran the integration tests, but they failed.
+
+Overall Goal:
+{goal}
+
+Test Results:
+{json.dumps(test_result, indent=2)}
+
+Analyze the exact root cause of the failure based on these results. 
+What exactly should the junior agent do next to fix this? Provide a concise, highly actionable instruction.
+"""
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Tests failed. Error: {e}"

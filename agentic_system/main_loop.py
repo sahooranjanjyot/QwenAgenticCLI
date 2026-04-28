@@ -1,7 +1,7 @@
 import time
 from qwen_agent import QwenAgent
 from tool_executor import execute_action
-from openai_supervisor import review_with_openai
+from openai_supervisor import review_with_openai, analyze_test_failure
 from agent_memory import AgentMemory
 from test_engine import run_tests
 
@@ -81,21 +81,36 @@ while True:
             last_observation = {"error": "You returned COMPLETE, but tests failed. Do NOT return COMPLETE until tests pass. Check if you need to start the server."}
             print("🚫 REJECTED COMPLETE: Tests are failing.")
 
+        openai_suggestion = analyze_test_failure(goal, test_result)
+        print(f"💡 OPENAI SUGGESTION:\n{openai_suggestion}")
+
         memory.add("system", {
-            "type": "test_failure",
-            "data": test_result
+            "type": "test_failure_with_guidance",
+            "test_result": test_result,
+            "senior_developer_guidance": openai_suggestion
         })
 
     else:
         print("✅ ALL TESTS PASSED")
-        last_observation = {"success": "All tests passed perfectly! The goal is achieved. You MUST now output action_type: 'COMPLETE' to finish."}
+        import os
+        if not os.path.exists("app_test_result.txt"):
+            last_observation = {
+                "success": "All tests passed perfectly! However, you MUST satisfy step 9 of the goal: write the test results to 'app_test_result.txt' with 'PASS' inside. Use WRITE_FILE to create app_test_result.txt before outputting COMPLETE.",
+                "test_output_for_file": test_result
+            }
+        else:
+            last_observation = {"success": "All tests passed perfectly, and app_test_result.txt exists! The goal is completely achieved. You MUST now output action_type: 'COMPLETE' to finish."}
 
     # =========================
     # STEP 5 — SUCCESS CHECK
     # =========================
-    if result == "COMPLETE" and test_result.get("all_pass"):
+    import os
+    if result == "COMPLETE" and test_result.get("all_pass") and os.path.exists("app_test_result.txt"):
         print("🎉 GOAL ACHIEVED")
         break
+    elif result == "COMPLETE" and test_result.get("all_pass"):
+        last_observation = {"error": "You returned COMPLETE, but app_test_result.txt does not exist. Read step 9 in the goal. You must WRITE_FILE app_test_result.txt with the test results."}
+        print("🚫 REJECTED COMPLETE: Missing app_test_result.txt.")
 
     retries += 1
 
