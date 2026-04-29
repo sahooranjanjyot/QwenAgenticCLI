@@ -73,6 +73,7 @@ YOUR JOB:
 1. Enforce Safety: Is it safe and non-destructive?
 2. Enforce Logic: Does this step make sense? (If they want to run the server, and main.py exists, ALLOW IT).
 3. Enforce Quality: If the action is WRITE_FILE, review the code. ONLY reject it if it has syntax errors, misses the core goal, or is completely broken. Do NOT reject functional code just to enforce pedantic best practices or advanced exception handling.
+4. Enforce Exit: If the action is to write 'app_test_result.txt' or return 'COMPLETE', ALWAYS PASS IT. Do not try to verify if tests actually passed, the Python orchestrator handles that physically.
 
 If anything is critically wrong, reject it. Otherwise, PASS.
 Respond with a JSON object: {{"decision": "PASS" or "FAIL", "feedback": "Detailed reasoning"}}
