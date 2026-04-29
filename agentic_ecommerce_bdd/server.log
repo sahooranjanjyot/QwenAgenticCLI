@@ -1,0 +1,17 @@
+INFO:     Started server process [35793]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8004 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54634 - "POST /clear_database HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54635 - "GET /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54636 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54637 - "POST /clear_database HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54638 - "GET /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54639 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54640 - "POST /cart HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54641 - "GET /cart HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54642 - "POST /clear_database HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54643 - "GET /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54644 - "POST /cart HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54645 - "POST /checkout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54646 - "GET /cart HTTP/1.1" 200 OK

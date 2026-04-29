@@ -1,0 +1,47 @@
+Build a medium-scale Online Store web application with a UI, backend APIs, SQLite persistence, and Behavior-Driven Development (BDD) tests using `behave`.
+
+REQUIREMENTS:
+
+1. Backend (FastAPI):
+- Use Python FastAPI.
+- Endpoints:
+  - `GET /products` → Returns a JSON list of products.
+  - `POST /cart` → Accepts a form submission with `product_id` and `quantity`. Adds it to the cart.
+  - `GET /cart` → Returns JSON list of items in the cart (including product details).
+  - `POST /checkout` → Clears the cart and returns {"status": "success", "message": "Order placed"}.
+
+2. Persistence (SQLite):
+- Use SQLite (`store.db`).
+- On startup, create two tables automatically if they do not exist:
+  - `products` (id INTEGER PRIMARY KEY, name TEXT, price REAL)
+  - `cart` (id INTEGER PRIMARY KEY, product_id INTEGER, quantity INTEGER)
+- Seed the `products` table with at least 3 default products on startup if it is empty (e.g., "Laptop" $999, "Phone" $499, "Headphones" $99).
+
+3. UI (HTMLResponse):
+- `GET /` → Returns a simple HTML Storefront UI displaying the products. Each product should have an "Add to Cart" form.
+- `GET /cart_ui` → Returns a simple HTML Cart UI showing the items in the cart, the total price, and a "Checkout" button that POSTs to /checkout.
+
+4. Dependencies:
+- Create `requirements.txt` containing `fastapi`, `uvicorn`, `behave`, `requests`, `python-multipart`.
+
+5. BDD Testing Framework (behave):
+- Create `features/store.feature` describing three scenarios:
+  1) Viewing the product catalog (must see default products).
+  2) Adding a product to the cart (cart must have 1 item after adding).
+  3) Checking out the cart (cart must be empty after checkout).
+- Create `features/steps/store_steps.py` to implement these BDD steps using the `requests` library to test the live server. You must implement a step to clear the database before tests to ensure idempotency.
+
+6. Execution:
+- Install dependencies via pip.
+- Run the server on port 8004 in the background (`uvicorn main:app --port 8004 &`).
+
+7. Output:
+- Once tests pass, write the `behave` test results to `app_test_result.txt` with PASS.
+
+RULES:
+- Choose correct architecture (FastAPI + SQLite).
+- Do NOT output COMPLETE unless the server is running, the BDD tests exist, and `behave` runs successfully.
+- If `behave` fails -> READ the error and FIX the code or the tests, then retry.
+
+FINAL CONDITION:
+Only output COMPLETE when everything is validated, tests pass, and app_test_result.txt is written.
